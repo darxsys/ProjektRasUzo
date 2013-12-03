@@ -1,1 +1,4 @@
 .DS_Store
+
+# libre office temporary files
+*#
