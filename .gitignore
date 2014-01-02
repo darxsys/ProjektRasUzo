@@ -2,3 +2,5 @@
 
 # libre office temporary files
 *#
+
+*.pyc
