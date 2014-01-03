@@ -40,12 +40,14 @@ class KNN(object):
         Additionally, optional max_neighbors argument can be provided.
         """
         self.max_K = max_neighbors
-        self.model.train(dataset, responses, maxK = max_neighbors)
+        self.model.train(dataset, responses, maxK=max_neighbors)
 
     def predict(self, samples, K):
-        """Accepts samples for classification and K. Notice: K has to be <= maxK that was
-        set while training. Refer here: http://docs.opencv.org/modules/ml/doc/k_nearest_neighbors.html
+        """Accepts samples for classification and K - number of neighbors to use. 
+        Notice: K has to be <= maxK that was set while training. 
+        Refer here: http://docs.opencv.org/modules/ml/doc/k_nearest_neighbors.html
         for more info. Samples are 2D numpy array of type np.float32.
+        Returns a list of prediction values.
         """
 
         if K > self.max_K:
@@ -54,4 +56,30 @@ class KNN(object):
 
         out = self.model.find_nearest(samples, K)
         return [int(x[0]) for x in out[1]]
-        
+
+class RandomTrees(object):
+    """Wraps a trained OpenCV RTrees classifier.
+    More info: http://docs.opencv.org/modules/ml/doc/random_trees.html
+    """
+
+    def __init__(self):
+        self.model = cv.RTrees()
+
+    def train(self, dataset, responses, max_d=20, criteria=cv.TERM_CRITERIA_MAX_ITER, 
+            max_num_trees=1000, max_error=1):
+        """Dataset and responses are assumed to be a 2D and 1D numpy matrix of type np.float32.
+        max_d corresponds to the max tree depth. Parameter criteria can be:
+        --CV_TERMCRIT_ITER Terminate learning by the max_num_of_trees_in_the_forest;
+        --CV_TERMCRIT_EPS Terminate learning by the forest_accuracy;
+        --CV_TERMCRIT_ITER + CV_TERMCRIT_EPS Use both termination criteria.
+        Refer here: http://docs.opencv.org/modules/ml/doc/random_trees.html
+        """
+        parameters = dict(max_depth=max_d, term_crit=(criteria, max_num_trees, max_error)) # not sure if max_error belongs here :D
+        self.model.train(dataset, cv.CV_ROW_SAMPLE, responses, params=parameters)
+
+    def predict(self, samples):
+        """Returns a list of prediction values for all samples.
+        Assuming samples are 2D numpy array of type np.float32.
+        """
+
+        return [int(self.model.predict(s)) for s in samples]
