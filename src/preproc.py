@@ -21,7 +21,7 @@ def preproc_dataset_cv(path):
             line = line.strip().split()
             nums = [float(x) for x in line[:-1]]
             data.append(tuple(nums))
-            responses.append(list((float(line[-1]),)))
+            responses.append(float(line[-1]))
 
     data = np.matrix(data, np.float32)
     responses = np.matrix(responses, np.float32)
