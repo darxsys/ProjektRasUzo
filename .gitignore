@@ -3,5 +3,11 @@
 # libre office temporary files
 *#
 
+# vim temporary files
+*.swp
+
+# pictures
+*.jpg
+
 *.pyc
 *.dat
