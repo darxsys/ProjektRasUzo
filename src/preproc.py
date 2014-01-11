@@ -52,6 +52,7 @@ def prepare_dataset_cv(folder):
                 dataset = np.vstack((dataset, features))
 
     labels = np.array(labels, dtype = np.float32)
+
     return dataset, labels, labels_dict
 
 def preproc_dataset_cv(path):

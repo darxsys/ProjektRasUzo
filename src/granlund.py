@@ -3,6 +3,11 @@ import cv2 as cv
 import math
 import sys
 
+# show_contour() parameters:
+#   im          - image on which we want to draw contours
+#   countours   - array of countours found on image im
+#
+#   Creates a new window with the image im that has drawn contours on itself
 def show_contour(im, contours):
     # show the contour on the silhouette
     cv.drawContours(im, contours, -1, (0, 255, 0), 3)
@@ -11,13 +16,24 @@ def show_contour(im, contours):
     cv.waitKey(0)
     cv.destroyAllWindows()
 
+# load_image_from_file() parameters:
+#   filename    - path to the image we want to load
+#   @return     - returns the loaded image
+#
+# Loads image from a file into opencv data structure
 def load_image_from_file(filename):
     print "Loading %s" % (filename)
     return cv.imread(filename)
 
+# get_features() parameters:
+#   im      - image from we want to extract features
+#   method  - determines what method to use, 0 for Granlunds coefficients, 1
+#             for Hus moments
+#   @return - 2D matrix containing features
+#
+# Extract features from an image
 def get_features(im, method = 0):
     # opencv magic
-    # imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
     ret,thresh = cv.threshold(im, 127, 255, 0)
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
@@ -35,17 +51,24 @@ def get_features(im, method = 0):
             silhouette = cnt
 
     if method == 0:
-        return get_granlund_coefficients(silhouette)
+        return _get_granlund_coefficients(silhouette)
     else:
-        return get_hu_coefficients(silhouette)
+        return _get_hu_coefficients(silhouette)
 
-def get_hu_coefficients(silhouette):
+def _get_hu_coefficients(silhouette):
+    # some more opencv magic
     mom = cv.moments(silhouette)
     hu = cv.HuMoments(mom)
 
-    return np.array(hu, dtype=np.float32)
+    # convert to appropriate record
+    coefficients = list()
+    for xs in hu.tolist():
+        for x in xs:
+            coefficients.append(x)
 
-def get_granlund_coefficients(silhouette):
+    return np.array([coefficients], dtype=np.float32)
+
+def _get_granlund_coefficients(silhouette):
     # please make sure this interval contains 1
     FOURIER_MIN_ID = -4
     FOURIER_MAX_ID = 5
