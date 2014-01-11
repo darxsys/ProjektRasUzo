@@ -65,8 +65,8 @@ class RandomTrees(object):
     def __init__(self):
         self.model = cv.RTrees()
 
-    def train(self, dataset, responses, max_d=20, criteria=cv.TERM_CRITERIA_MAX_ITER, 
-            max_num_trees=1000, max_error=1):
+    def train(self, dataset, responses, max_d=5, criteria=cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS, 
+            max_num_trees=10, max_error=1):
         """Dataset and responses are assumed to be a 2D and 1D numpy matrix of type np.float32.
         max_d corresponds to the max tree depth. Parameter criteria can be:
         --CV_TERMCRIT_ITER Terminate learning by the max_num_of_trees_in_the_forest;
@@ -74,8 +74,9 @@ class RandomTrees(object):
         --CV_TERMCRIT_ITER + CV_TERMCRIT_EPS Use both termination criteria.
         Refer here: http://docs.opencv.org/modules/ml/doc/random_trees.html
         """
-        parameters = dict(max_depth=max_d, term_crit=(criteria, max_num_trees, max_error)) # not sure if max_error belongs here :D
+        parameters = dict(max_depth=max_d, min_sample_count=5, use_surrogates=False, nactive_vars=0, term_crit=(criteria, max_num_trees, max_error)) # not sure if max_error belongs here :D
         self.model.train(dataset, cv.CV_ROW_SAMPLE, responses, params=parameters)
+        print ("Num of trees: %d" % (self.model.tree_count))
 
     def predict(self, samples):
         """Returns a list of prediction values for all samples.

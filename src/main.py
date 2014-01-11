@@ -39,7 +39,7 @@ def predict(bayes, knn, tree, decode):
         features = granlund.get_features(silh)
 
         print ("Bayes result: " + decode[bayes.predict(features)[0]])
-        print ("KNN result: " + decode[knn.predict(features, 3)[0]])
+        print ("KNN result: " + decode[knn.predict(features, 5)[0]])
         print ("Tree result: " + decode[tree.predict(features)[0]])
 
 if __name__ == "__main__":
