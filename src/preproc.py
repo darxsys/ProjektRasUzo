@@ -11,31 +11,38 @@ dataset and other preprocessing for classifiers.
 
 def prepare_dataset_cv(folder):
     """For a given folder, goes through all the subfolders that contain
-    images for a particular person and transforms them into characteristics.
+    images for a particular person and transforms them into gfeatures.
     Also creates a dictionary later used for decoding of a persons name.
     Returns dataset, labels, dictionary - in that order.
     """
 
     dataset = np.array([[]], dtype=np.float32)
-    labels = np.array([], dtype=np.float32)
+    # labels = np.array([], dtype=np.float32)
+    labels = []
     labels_dict = {}
     counter = -1
 
+    # folder_path = os.path.join(folder, '/')
     subfolders = os.listdir(folder)
     for sfolder in subfolders:
         counter += 1
         labels_dict[counter] = sfolder
+        labels.append(counter)
 
-        images = os.listdir(os.path.join(folder, sfolder))
+        pics_path = os.path.join(folder, sfolder, 'pics/')  
+        backs_path = os.path.join(folder, sfolder, 'back/')
+
+        images = os.listdir(pics_path)
         for image in images:
-            silh = get_silhouette.get_silhouette(image)
+            image = granlund.load_image_from_file(os.path.join(pics_path, image))
+            background = granlund.load_image_from_file(os.path.join(backs_path, image))
+            silh = get_silhouette.get_silhouette(image, background)
+            features = granlund.get_granlund_coefficients(silh)
 
+            dataset = np.vstack((dataset, features))
 
-
-
-
-
-
+    labels = np.array(labels, dtype = np.float32)
+    return dataset, labels, labels_dict
 
 def preproc_dataset_cv(path):
     """Reads a dataset from the path and returns two numpy arrays:
