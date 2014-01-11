@@ -31,7 +31,7 @@ def get_features(im, method = 0):
     silhouette = None
 
     for cnt in contours:
-        if not silhouette or cv.contourArea(silhouette) < cv.contourArea(cnt):
+        if silhouette is None or cv.contourArea(silhouette) < cv.contourArea(cnt):
             silhouette = cnt
 
     if method == 0:
