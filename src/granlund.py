@@ -17,8 +17,8 @@ def load_image_from_file(filename):
 
 def get_features(im, method = 0):
     # opencv magic
-    imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
-    ret,thresh = cv.threshold(imgray, 127, 255, 0)
+    # imgray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
+    ret,thresh = cv.threshold(im, 127, 255, 0)
     contours, hierarchy = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     if not contours:

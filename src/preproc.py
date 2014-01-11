@@ -30,7 +30,6 @@ def prepare_dataset_cv(folder):
 
         counter += 1
         labels_dict[counter] = sfolder
-        labels.append(counter)
 
         pics_path = os.path.join(folder, sfolder, 'pics/')
         backs_path = os.path.join(folder, sfolder, 'back/')
@@ -39,11 +38,13 @@ def prepare_dataset_cv(folder):
         for image in images:
             if not image.endswith(".jpg"): continue
 
+            labels.append(counter)
+
             im = granlund.load_image_from_file(os.path.join(pics_path, image))
             background = granlund.load_image_from_file(os.path.join(backs_path, image))
             silh = get_silhouette.get_silhouette(im, background)
 
-            features = granlund.get_features(im)
+            features = granlund.get_features(silh)
 
             if dataset is None:
                 dataset = features
