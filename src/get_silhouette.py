@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 ############################################################################
-# getSilhouette() parameters:
+# get_silhouette() parameters:
 #
 # 	personFile     - file containing an image with a person
 # 	backgroundFile - file containing an image with the same background as
@@ -26,15 +26,15 @@ import sys
 ############################################################################
 # PUBLIC
 
-def getSilhouette(personFile, backgroundFile, approach = 'c', threshType = 'm',
+def get_silhouette(personFile, backgroundFile, approach = 'c', threshType = 'm',
 	threshold = 25, outFile = None):
 
 	if approach == 'g':
-		diff = _grayApproach(personFile, backgroundFile)
+		diff = _gray_approach(personFile, backgroundFile)
 	else:
-		diff = _colourApproach(personFile, backgroundFile)
+		diff = _color_approach(personFile, backgroundFile)
 
-	_getLargestContour(diff, threshType, threshold, outFile)
+	_get_largest_contour(diff, threshType, threshold, outFile)
 
 ############################################################################
 
@@ -42,7 +42,7 @@ def getSilhouette(personFile, backgroundFile, approach = 'c', threshType = 'm',
 ############################################################################
 # PRIVATE
 
-def _colourApproach(personFile, backgroundFile):
+def _color_approach(personFile, backgroundFile):
 
 	# reading images from input files
 
@@ -82,7 +82,7 @@ def _colourApproach(personFile, backgroundFile):
 
 	return diffB
 
-def _grayApproach(personFile, backgroundFile):
+def _gray_approach(personFile, backgroundFile):
 
 	# reading images from input files in gray scale
 
@@ -107,16 +107,16 @@ def _grayApproach(personFile, backgroundFile):
 
 	return diffB
 
-def _getLargestContour(diff, threshType, threshold, outFile):
+def _get_largest_contour(diff, threshType, threshold, outFile):
 
 	# calculating median/mean
 
 	tr = threshold
 
 	if threshType == 'a':
-		tr += _getMean(diff)
+		tr += _get_mean(diff)
 	else:
-		tr += _getMedian(diff)
+		tr += _get_median(diff)
 
 	# thresholding the image (result is a black & white image)
 
@@ -150,7 +150,7 @@ def _getLargestContour(diff, threshType, threshold, outFile):
 	else:
 		cv.imwrite(outFile, silhouette)
 
-def _getMedian(image):
+def _get_median(image):
 	# finds the median intensity value of an image
 
 	arr = []
@@ -161,7 +161,7 @@ def _getMedian(image):
 
 	return np.median(arr)
 
-def _getMean(image):
+def _get_mean(image):
 	# finds the mean intensity value of an image
 
 	arr = []
