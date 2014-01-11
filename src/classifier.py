@@ -76,7 +76,7 @@ class RandomTrees(object):
         """
         parameters = dict(max_depth=max_d, min_sample_count=5, use_surrogates=False, nactive_vars=0, term_crit=(criteria, max_num_trees, max_error)) # not sure if max_error belongs here :D
         self.model.train(dataset, cv.CV_ROW_SAMPLE, responses, params=parameters)
-        print ("Num of trees: %d" % (self.model.tree_count))
+        # print ("Num of trees: %d" % (self.model.tree_count))
 
     def predict(self, samples):
         """Returns a list of prediction values for all samples.
