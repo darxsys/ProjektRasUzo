@@ -35,7 +35,7 @@ def predict(bayes, knn, tree, decode):
         image = granlund.load_image_from_file(pic)
         background = granlund.load_image_from_file(back)
         silh = get_silhouette.get_silhouette(image, background)
-        features = granlund.get_granlund_coefficients(silh)
+        features = granlund.get_features(silh)
 
         print ("Bayes result: " + decode[bayes.predict(features)[0]])
         print ("KNN result: " + decode[knn.predict(features)[0]])

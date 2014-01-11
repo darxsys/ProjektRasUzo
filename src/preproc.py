@@ -37,7 +37,7 @@ def prepare_dataset_cv(folder):
             image = granlund.load_image_from_file(os.path.join(pics_path, image))
             background = granlund.load_image_from_file(os.path.join(backs_path, image))
             silh = get_silhouette.get_silhouette(image, background)
-            features = granlund.get_granlund_coefficients(silh)
+            features = granlund.get_features(silh)
 
             dataset = np.vstack((dataset, features))
 
