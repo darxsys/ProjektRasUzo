@@ -1,0 +1,8 @@
+# Dataset folder
+
+We store our dataset in *data/* folder.
+
+For each person we have a folder which name we use as an ID in classification
+process. Further more, each folder that has a unique ID contains two more
+folders. One is only for the background pictures and the other one is for the
+picture with the person in it. We need those pictures to extract silhouettes.
