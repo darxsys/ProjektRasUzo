@@ -16,7 +16,8 @@ def prepare_dataset_cv(folder):
     Returns dataset, labels, dictionary - in that order.
     """
 
-    dataset = np.array([[]], dtype=np.float32)
+    dataset = None
+    # dataset = np.array([[]], dtype=np.float32)
     # labels = np.array([], dtype=np.float32)
     labels = []
     labels_dict = {}
@@ -44,7 +45,10 @@ def prepare_dataset_cv(folder):
 
             features = granlund.get_features(im)
 
-            dataset = np.vstack((dataset, features))
+            if dataset is None:
+                dataset = features
+            else:
+                dataset = np.vstack((dataset, features))
 
     labels = np.array(labels, dtype = np.float32)
     return dataset, labels, labels_dict
