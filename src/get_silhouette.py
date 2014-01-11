@@ -4,10 +4,8 @@ import sys
 
 ############################################################################
 # get_silhouette() parameters:
-#
-#   person_file     - file containing an image with a person
-#   background_file - file containing an image with the same background as
-#                     in personFile
+#   person          - image of a person and a background
+#   background      - image of the same background
 #
 #   Optional:
 #    approach       - determines gray ('g') or colour ('c') approach
@@ -26,15 +24,15 @@ import sys
 ############################################################################
 # PUBLIC
 
-def get_silhouette(person_file, background_file, approach = 'c', thresh_type = 'm',
+def get_silhouette(person, background, approach = 'c', thresh_type = 'm',
 	threshold = 25, out_file = None):
 
 	# subtracting the background to get the person
 
 	if approach == 'g':
-		diff = _gray_approach(person_file, background_file)
+		diff = _gray_approach(person, background)
 	else:
-		diff = _colour_approach(person_file, background_file)
+		diff = _colour_approach(person, background)
 
 	# finding the silhouette
 
@@ -46,15 +44,7 @@ def get_silhouette(person_file, background_file, approach = 'c', thresh_type = '
 ############################################################################
 # PRIVATE
 
-def _colour_approach(person_file, background_file):
-
-	# reading images from input files
-
-	person = cv.imread(person_file)
-	_check(person, error = "no person file found")
-
-	background = cv.imread(background_file)
-	_check(background, error = "no background file found")
+def _colour_approach(person, background):
 
 	# spliting images to red, green & blue components
 
@@ -86,20 +76,17 @@ def _colour_approach(person_file, background_file):
 
 	return diff_b
 
-def _gray_approach(person_file, background_file):
+def _gray_approach(person, background):
 
-	# reading images from input files in gray scale
+	# converting images to gray scale
 
-	person = cv.imread(person_file, cv.CV_LOAD_IMAGE_GRAYSCALE)
-	_check(person, error = "no person file found")
-
-	background = cv.imread(background_file, cv.CV_LOAD_IMAGE_GRAYSCALE)
-	_check(background, error = "no background file found")
+	person_g = cv.cvtColor(person, cv.COLOR_BGR2GRAY)
+	background_g = cv.cvtColor(background, cv.COLOR_BGR2GRAY)
 
 	# applying Gaussian blur to images
 
-	person_b = cv.GaussianBlur(person, (5, 5), 0)
-	background_b = cv.GaussianBlur(background, (5, 5), 0)
+	person_b = cv.GaussianBlur(person_g, (5, 5), 0)
+	background_b = cv.GaussianBlur(background_g, (5, 5), 0)
 
 	# subtracting images
 
@@ -172,11 +159,5 @@ def _get_mean(image):
 			arr.append(image.item(i, j))
 
 	return np.mean(arr)
-
-# checks if the variable is none
-def _check(var, error):
-	if var is None:
-		print(error)
-		sys.exit(1)
 
 ############################################################################
