@@ -25,19 +25,24 @@ def prepare_dataset_cv(folder):
     # folder_path = os.path.join(folder, '/')
     subfolders = os.listdir(folder)
     for sfolder in subfolders:
+        if not os.path.isdir(os.path.join(folder, sfolder)): continue
+
         counter += 1
         labels_dict[counter] = sfolder
         labels.append(counter)
 
-        pics_path = os.path.join(folder, sfolder, 'pics/')  
+        pics_path = os.path.join(folder, sfolder, 'pics/')
         backs_path = os.path.join(folder, sfolder, 'back/')
 
         images = os.listdir(pics_path)
         for image in images:
-            image = granlund.load_image_from_file(os.path.join(pics_path, image))
+            if not image.endswith(".jpg"): continue
+
+            im = granlund.load_image_from_file(os.path.join(pics_path, image))
             background = granlund.load_image_from_file(os.path.join(backs_path, image))
-            silh = get_silhouette.get_silhouette(image, background)
-            features = granlund.get_features(silh)
+            silh = get_silhouette.get_silhouette(im, background)
+
+            features = granlund.get_features(im)
 
             dataset = np.vstack((dataset, features))
 
