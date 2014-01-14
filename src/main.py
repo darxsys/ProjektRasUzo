@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import cv2 as cv
 
 import preproc
 import classifier
@@ -25,6 +26,7 @@ def predict(bayes, knn, tree, decode):
     """Accepts trained classifiers and decode dictionary. Waits for a path to a picture to classify.
     """
 
+    print decode
     N = 0
     bayes_correct = 0
     knn_correct = 0
@@ -45,11 +47,12 @@ def predict(bayes, knn, tree, decode):
 
         image = granlund.load_image_from_file(pic)
         background = granlund.load_image_from_file(back)
-        silh = get_silhouette.get_silhouette(image, background)
-        features = granlund.get_features(silh)
+        silh = get_silhouette.get_silhouette(image, background, threshold = 150)
+        # preproc.display_image(silh)
+        features = granlund.get_features(silh, method=1)
 
         bayes_res = decode[bayes.predict(features)[0]]
-        knn_res = decode[knn.predict(features, 5)[0]]
+        knn_res = decode[knn.predict(features, 7)[0]]
         tree_res = decode[tree.predict(features)[0]]
 
         N += 1
@@ -67,9 +70,9 @@ def predict(bayes, knn, tree, decode):
     print
 
     print("Correctness:")
-    print("Bayes: %.2lf" % (bayes_correct / float(N)))
-    print("KNN: %.2lf" % (knn_correct / float(N)))
-    print("tree: %.2lf" % (tree_correct / float(N)))
+    print("Bayes: %.5lf" % (bayes_correct / float(N)))
+    print("KNN: %.5lf" % (knn_correct / float(N)))
+    print("tree: %.5lf" % (tree_correct / float(N)))
 
 if __name__ == "__main__":
     if not len(sys.argv) == 2:

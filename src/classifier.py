@@ -35,7 +35,7 @@ class KNN(object):
         self.model = cv.KNearest()
         self.max_K = 32
 
-    def train(self, dataset, responses, max_neighbors=32):
+    def train(self, dataset, responses, max_neighbors=7):
         """Dataset and responses are assumed to be a 2D and 1D numpy matrix of type np.float32.
         Additionally, optional max_neighbors argument can be provided.
         """
@@ -66,7 +66,7 @@ class RandomTrees(object):
         self.model = cv.RTrees()
 
     def train(self, dataset, responses, max_d=4, criteria=cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS, 
-            max_num_trees=20, max_error=1e-6):
+            max_num_trees=10, max_error=0.1):
         """Dataset and responses are assumed to be a 2D and 1D numpy matrix of type np.float32.
         max_d corresponds to the max tree depth. Parameter criteria can be:
         --CV_TERMCRIT_ITER Terminate learning by the max_num_of_trees_in_the_forest;

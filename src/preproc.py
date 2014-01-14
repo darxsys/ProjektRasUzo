@@ -1,6 +1,7 @@
 import sys
 import os
 import numpy as np
+import cv2 as cv
 
 import get_silhouette
 import granlund
@@ -9,9 +10,15 @@ __doc__ == """Module with helper functions for
 dataset and other preprocessing for classifiers.
 """
 
+def display_image(im):
+    cv.namedWindow("Disp", 0)
+    cv.imshow("Disp", im)
+    cv.waitKey(0)
+    return
+
 def prepare_dataset_cv(folder):
     """For a given folder, goes through all the subfolders that contain
-    images for a particular person and transforms them into gfeatures.
+    images for a particular person and transforms them into features.
     Also creates a dictionary later used for decoding of a persons name.
     Returns dataset, labels, dictionary - in that order.
     """
@@ -42,9 +49,10 @@ def prepare_dataset_cv(folder):
 
             im = granlund.load_image_from_file(os.path.join(pics_path, image))
             background = granlund.load_image_from_file(os.path.join(backs_path, image))
-            silh = get_silhouette.get_silhouette(im, background)
+            silh = get_silhouette.get_silhouette(im, background, threshold = 150 , approach='c')
+            # display_image(silh)
 
-            features = granlund.get_features(silh)
+            features = granlund.get_features(silh, method=1)
 
             if dataset is None:
                 dataset = features
@@ -52,7 +60,6 @@ def prepare_dataset_cv(folder):
                 dataset = np.vstack((dataset, features))
 
     labels = np.array(labels, dtype = np.float32)
-
     return dataset, labels, labels_dict
 
 def preproc_dataset_cv(path):
