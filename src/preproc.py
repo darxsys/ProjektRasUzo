@@ -16,7 +16,7 @@ def display_image(im):
     cv.waitKey(0)
     return
 
-def prepare_dataset_cv(folder):
+def prepare_dataset_cv(folder, threshold_, method_):
     """For a given folder, goes through all the subfolders that contain
     images for a particular person and transforms them into features.
     Also creates a dictionary later used for decoding of a persons name.
@@ -43,16 +43,16 @@ def prepare_dataset_cv(folder):
 
         images = os.listdir(pics_path)
         for image in images:
-            if not image.endswith(".jpg"): continue
+            if not (image.endswith(".jpg") or image.endswith(".JPG")): continue
 
             labels.append(counter)
 
             im = granlund.load_image_from_file(os.path.join(pics_path, image))
             background = granlund.load_image_from_file(os.path.join(backs_path, image))
-            silh = get_silhouette.get_silhouette(im, background, threshold = 150 , approach='c')
+            silh = get_silhouette.get_silhouette(im, background, threshold = threshold_ , approach='c')
             # display_image(silh)
 
-            features = granlund.get_features(silh, method=1)
+            features = granlund.get_features(silh, method=method_)
 
             if dataset is None:
                 dataset = features

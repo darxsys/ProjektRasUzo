@@ -1,13 +1,46 @@
 import sys
 import numpy as np
 import cv2 as cv
+import getopt
 
 import preproc
 import classifier
 import granlund
 import get_silhouette
 
-def train(path):
+def get_arguments(argv):
+    # print(argv)
+    try:
+        opts, args = getopt.getopt(argv,"t:m:p",["path=","threshold=","method="])
+    except getopt.GetoptError:
+        print ('main.py --path=<path_to_data> --method=<hu>|<granlund>  --threshold=<floating_point_number>')
+
+    # training = ""
+    path = None
+    threshold = None
+    method = None
+    # generalization = ""
+
+    for opt, arg in opts:
+        # print (opt)
+        if opt == '-h':
+            print ('main.py --method=<hu>|<granlund>  --threshold=<floating_point_number>')
+            sys.exit(1)
+
+        elif opt == "--threshold":
+            threshold = float(arg)
+        elif opt == "--method":
+            if arg == "hu":
+                method = 1
+            else:
+                method = 0
+            # method = arg
+        elif opt == "--path":
+            path = arg
+
+    return path, threshold, method
+
+def train(path, threshold, method):
     """Given a path to the pictures, trains all possible classifiers.
     """
 
@@ -15,14 +48,14 @@ def train(path):
     knn = classifier.KNN()
     tree = classifier.RandomTrees()
 
-    dataset, responses, decode = preproc.prepare_dataset_cv(path)
+    dataset, responses, decode = preproc.prepare_dataset_cv(path, threshold, method)
     bayes.train(dataset, responses)
     knn.train(dataset, responses)
     tree.train(dataset, responses)
 
     return bayes, knn, tree, decode
 
-def predict(bayes, knn, tree, decode):
+def predict(bayes, knn, tree, decode, threshold_, method_):
     """Accepts trained classifiers and decode dictionary. Waits for a path to a picture to classify.
     """
 
@@ -47,9 +80,9 @@ def predict(bayes, knn, tree, decode):
 
         image = granlund.load_image_from_file(pic)
         background = granlund.load_image_from_file(back)
-        silh = get_silhouette.get_silhouette(image, background, threshold = 150)
+        silh = get_silhouette.get_silhouette(image, background, threshold = threshold_)
         # preproc.display_image(silh)
-        features = granlund.get_features(silh, method=1)
+        features = granlund.get_features(silh, method=method_)
 
         bayes_res = decode[bayes.predict(features)[0]]
         knn_res = decode[knn.predict(features, 7)[0]]
@@ -75,8 +108,9 @@ def predict(bayes, knn, tree, decode):
     print("tree: %.5lf" % (tree_correct / float(N)))
 
 if __name__ == "__main__":
-    if not len(sys.argv) == 2:
-        raise ValueError("Only one argument - path to pictures.")
+    path, threshold, method = get_arguments(sys.argv[1:])
+    if path == None or threshold == None or method == None:
+        raise ValueError("Not enough arguments.")
 
-    bayes, knn, tree, decode = train(sys.argv[1])
-    predict(bayes, knn, tree, decode)
+    bayes, knn, tree, decode, = train(path, threshold, method)
+    predict(bayes, knn, tree, decode, threshold, method)
