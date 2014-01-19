@@ -17,7 +17,31 @@ def help():
     buff += "--path=<path_to_data> --path to learning data\n"
     buff += "--method =<hu>|<granlund> --method for feature extraction\n"
     buff += "--threshold required if optparam is not set\n"
-    buff += "Optional parameters:\n"
+    buff += "##################################\n"
+
+    buff += "Optional parameters (all other):\n"
+    buff += "--optparam=0|1 -- if this option is selected, thresholds are read for every picture and --threshold is ignored, if set.\n"
+    buff += "##################################\n"
+
+    buff += "Extraction related parameters:\n"
+    buff += "--approach=c|g -- regulates whether colored pictures are compared or gray-scaled ones when extracting silhouettes.\n"
+    buff += "--threshtype=m|a -- regulates whether median or mean are used ase threshold types for getting black and white pictures.\n"
+    buff += "##################################"
+
+    buff += "KNN-related parameters:\n"
+    buff += "--nmax=<number> -- maximum number of neighbors for KNN classifier.\n"
+    buff += "--nclass=<number> -- number of neighbors used for classifying a picture. <= nmax.\n"
+    buff += "Be careful: setting nmax and not setting nclass could lead to errors if nmax is < 7 which"
+    buff += "is the default nclass.\n"
+    buff += "##################################\n"
+
+    buff += "Random trees related parameters:\n"
+    buff += "--maxdepth=<number> -- max depth of a random tree.\n"
+    buff += "--criteria=<cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS> -- termination criteria for random trees learning.\n"
+    buff += "--maxtrees=<number> -- maximum number of trees.\n"
+    buff += "--maxerror=<numer> -- if --criteria includes EPS part, this regulates max error allowed before stopping.\n"
+    buff += "##################################\n"
+
 
     print buff
 
@@ -42,6 +66,7 @@ def get_arguments(argv):
         # print (opt)
         if opt == '-h':
             # print ('main.py --method=<hu>|<granlund>  --threshold=<floating_point_number>')
+            help()
             sys.exit(1)
         elif opt == "--threshold":
             params["threshold"] = float(arg)
@@ -154,7 +179,6 @@ if __name__ == "__main__":
             print ("Not enough arguments.")
             help()
             sys.exit(1)
-
 
     bayes, knn, tree, decode, = train(params)
     predict(bayes, knn, tree, decode, params)
