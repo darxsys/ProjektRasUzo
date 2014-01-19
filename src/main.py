@@ -11,14 +11,15 @@ import get_silhouette
 def get_arguments(argv):
     # print(argv)
     try:
-        opts, args = getopt.getopt(argv,"t:m:p",["path=","threshold=","method="])
+        opts, args = getopt.getopt(argv,"t:m:p:s",["path=","threshold=","method=","parameters="])
     except getopt.GetoptError:
-        print ('main.py --path=<path_to_data> --method=<hu>|<granlund>  --threshold=<floating_point_number>')
+        print ('main.py --path=<path_to_data> --method=<hu>|<granlund>  --threshold=<floating_point_number> --parameters=<0>|<1>')
 
     # training = ""
     path = None
     threshold = None
     method = None
+    parameters = None
     # generalization = ""
 
     for opt, arg in opts:
@@ -37,10 +38,12 @@ def get_arguments(argv):
             # method = arg
         elif opt == "--path":
             path = arg
+        elif opt == "--parameters":
+            parameters = int(arg)
 
-    return path, threshold, method
+    return path, threshold, method, parameters
 
-def train(path, threshold, method):
+def train(path, threshold, method, parameters):
     """Given a path to the pictures, trains all possible classifiers.
     """
 
@@ -48,14 +51,14 @@ def train(path, threshold, method):
     knn = classifier.KNN()
     tree = classifier.RandomTrees()
 
-    dataset, responses, decode = preproc.prepare_dataset_cv(path, threshold, method)
+    dataset, responses, decode = preproc.prepare_dataset_cv(path, threshold, method, parameters)
     bayes.train(dataset, responses)
     knn.train(dataset, responses)
     tree.train(dataset, responses)
 
     return bayes, knn, tree, decode
 
-def predict(bayes, knn, tree, decode, threshold_, method_):
+def predict(bayes, knn, tree, decode, threshold_, method_, parameters):
     """Accepts trained classifiers and decode dictionary. Waits for a path to a picture to classify.
     """
 
@@ -66,6 +69,7 @@ def predict(bayes, knn, tree, decode, threshold_, method_):
     tree_correct = 0
 
     print ("Type in the path to a picture and its background. -1 to end.")
+    print ("Optionally, you can also put parameters if you selected it.")
     print
 
     while True:
@@ -77,6 +81,9 @@ def predict(bayes, knn, tree, decode, threshold_, method_):
 
         line = sys.stdin.readline()
         back = line.strip()
+
+        if parameters == 1:
+            threshold_ = float(sys.stdin.readline().strip())
 
         image = granlund.load_image_from_file(pic)
         background = granlund.load_image_from_file(back)
@@ -108,9 +115,9 @@ def predict(bayes, knn, tree, decode, threshold_, method_):
     print("tree: %.5lf" % (tree_correct / float(N)))
 
 if __name__ == "__main__":
-    path, threshold, method = get_arguments(sys.argv[1:])
+    path, threshold, method, parameters = get_arguments(sys.argv[1:])
     if path == None or threshold == None or method == None:
         raise ValueError("Not enough arguments.")
 
-    bayes, knn, tree, decode, = train(path, threshold, method)
-    predict(bayes, knn, tree, decode, threshold, method)
+    bayes, knn, tree, decode, = train(path, threshold, method, parameters)
+    predict(bayes, knn, tree, decode, threshold, method, parameters)

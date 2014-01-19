@@ -16,7 +16,7 @@ def display_image(im):
     cv.waitKey(0)
     return
 
-def prepare_dataset_cv(folder, threshold_, method_):
+def prepare_dataset_cv(folder, threshold_, method_, params_input):
     """For a given folder, goes through all the subfolders that contain
     images for a particular person and transforms them into features.
     Also creates a dictionary later used for decoding of a persons name.
@@ -40,10 +40,23 @@ def prepare_dataset_cv(folder, threshold_, method_):
 
         pics_path = os.path.join(folder, sfolder, 'pics/')
         backs_path = os.path.join(folder, sfolder, 'back/')
+        if params_input == 1:
+            params_path = os.path.join(folder, sfolder, "parametars.txt")
+            params = open(params_path, "r")
+            param_lines = params.readlines()
 
         images = os.listdir(pics_path)
-        for image in images:
-            if not (image.endswith(".jpg") or image.endswith(".JPG")): continue
+        images.sort()
+        # thresh
+        # for image in images:
+        j = 0
+        for i in range(len(images)):
+            image = images[i]
+            if not (image.endswith(".jpg") or image.endswith(".JPG"))   : continue
+
+            if params_input == 1:
+                threshold_ = float(param_lines[j].strip())
+                j += 1
 
             labels.append(counter)
 
