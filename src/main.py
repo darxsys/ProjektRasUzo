@@ -8,44 +8,65 @@ import classifier
 import granlund
 import get_silhouette
 
-def get_arguments(argv):
-    # print(argv)
-    try:
-        opts, args = getopt.getopt(argv,"t:m:p:s",["path=","threshold=","method=","parameters="])
-    except getopt.GetoptError:
-        print ('main.py --path=<path_to_data> --method=<hu>|<granlund>  --threshold=<floating_point_number> --parameters=<0>|<1>')
+def help():
+    """Outputs help string.
+    """
 
-    # training = ""
-    path = None
-    threshold = None
-    method = None
-    parameters = None
-    # generalization = ""
+    buff = "main.py [options]\n"
+    buff += "Required parameters:\n"
+    buff += "--path=<path_to_data> --path to learning data\n"
+    buff += "--method =<hu>|<granlund> --method for feature extraction\n"
+    buff += "--threshold required if optparam is not set\n"
+    buff += "Optional parameters:\n"
+
+    print buff
+
+def get_arguments(argv):
+    """Uses getopt to get program parameters.
+    """
+
+    params = dict()
+    try:
+        opts, args = getopt.getopt(argv,"",["path=","threshold=","method=","optparam=","approach="])
+    except getopt.GetoptError:
+        help()
+        sys.exit(1)
+        # print ('main.py --path=<path_to_data> --method=<hu>|<granlund>  --threshold=<floating_point_number> --parameters=<0>|<1>')
+
+    params["path"] = None
+    params["threshold"] = None
+    params["method"] = None
+    params["param_flag"] = None
 
     for opt, arg in opts:
         # print (opt)
         if opt == '-h':
-            print ('main.py --method=<hu>|<granlund>  --threshold=<floating_point_number>')
+            # print ('main.py --method=<hu>|<granlund>  --threshold=<floating_point_number>')
             sys.exit(1)
-
         elif opt == "--threshold":
-            threshold = float(arg)
+            params["threshold"] = float(arg)
         elif opt == "--method":
             if arg == "hu":
-                method = 1
-            else:
-                method = 0
+                params["method"] = 1
+            elif arg == "granlund":
+                params["method"] = 0
             # method = arg
         elif opt == "--path":
-            path = arg
-        elif opt == "--parameters":
-            parameters = int(arg)
+            params["path"] = arg
+        elif opt == "--optparam":
+            params["param_flag"] = int(arg)
 
-    return path, threshold, method, parameters
+    return params
 
-def train(path, threshold, method, parameters):
+def train(params):
     """Given a path to the pictures, trains all possible classifiers.
     """
+
+    path = params["path"]
+    threshold = params["threshold"]
+    method = params["method"]
+    if "param_flag" in params:
+        parameters = params["param_flag"]
 
     bayes = classifier.NormalBayes()
     knn = classifier.KNN()
@@ -58,18 +79,24 @@ def train(path, threshold, method, parameters):
 
     return bayes, knn, tree, decode
 
-def predict(bayes, knn, tree, decode, threshold_, method_, parameters):
+def predict(bayes, knn, tree, decode, params):
     """Accepts trained classifiers and decode dictionary. Waits for a path to a picture to classify.
     """
 
-    print decode
+    path = params["path"]
+    threshold_ = params["threshold"]
+    method_ = params["method"]
+    if "param_flag" in params:
+        parameters = params["param_flag"]
+
+    # print decode
     N = 0
     bayes_correct = 0
     knn_correct = 0
     tree_correct = 0
 
     print ("Type in the path to a picture and its background. -1 to end.")
-    print ("Optionally, you can also put parameters if you selected it.")
+    print ("Optionally, you can also put parameters if you selected the option when running.")
     print
 
     while True:
@@ -115,9 +142,19 @@ def predict(bayes, knn, tree, decode, threshold_, method_, parameters):
     print("tree: %.5lf" % (tree_correct / float(N)))
 
 if __name__ == "__main__":
-    path, threshold, method, parameters = get_arguments(sys.argv[1:])
-    if path == None or threshold == None or method == None:
-        raise ValueError("Not enough arguments.")
+    params = get_arguments(sys.argv[1:])
 
-    bayes, knn, tree, decode, = train(path, threshold, method, parameters)
-    predict(bayes, knn, tree, decode, threshold, method, parameters)
+    if "path" not in params or "method" not in params:
+        print ("Not enough arguments.")
+        help()
+        sys.exit(1)
+
+    if "threshold" not in params:
+        if "param_flag" not in params or params["param_flag"] == 0:
+            print ("Not enough arguments.")
+            help()
+            sys.exit(1)
+
+
+    bayes, knn, tree, decode, = train(params)
+    predict(bayes, knn, tree, decode, params)
