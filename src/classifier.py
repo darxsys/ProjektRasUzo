@@ -35,20 +35,30 @@ class KNN(object):
         self.model = cv.KNearest()
         self.max_K = 32
 
-    def train(self, dataset, responses, max_neighbors=7):
+    def train(self, dataset, responses, params):
         """Dataset and responses are assumed to be a 2D and 1D numpy matrix of type np.float32.
         Additionally, optional max_neighbors argument can be provided.
         """
-        self.max_K = max_neighbors
-        self.model.train(dataset, responses, maxK=max_neighbors)
 
-    def predict(self, samples, K):
+        if "nmax" in params:
+            self.max_K = params["nmax"]
+        else:
+            self.max_K = 32
+            
+        self.model.train(dataset, responses, maxK=self.max_K)
+
+    def predict(self, samples, params):
         """Accepts samples for classification and K - number of neighbors to use. 
         Notice: K has to be <= maxK that was set while training. 
         Refer here: http://docs.opencv.org/modules/ml/doc/k_nearest_neighbors.html
         for more info. Samples are 2D numpy array of type np.float32.
         Returns a list of prediction values.
         """
+
+        if "nclass" in params:
+            K = params["nclass"]
+        else:
+            K = 7
 
         if K > self.max_K:
             print ("Bad argument: K")
@@ -65,8 +75,7 @@ class RandomTrees(object):
     def __init__(self):
         self.model = cv.RTrees()
 
-    def train(self, dataset, responses, max_d=4, criteria=cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS, 
-            max_num_trees=10, max_error=0.1):
+    def train(self, dataset, responses, params):
         """Dataset and responses are assumed to be a 2D and 1D numpy matrix of type np.float32.
         max_d corresponds to the max tree depth. Parameter criteria can be:
         --CV_TERMCRIT_ITER Terminate learning by the max_num_of_trees_in_the_forest;
@@ -74,6 +83,23 @@ class RandomTrees(object):
         --CV_TERMCRIT_ITER + CV_TERMCRIT_EPS Use both termination criteria.
         Refer here: http://docs.opencv.org/modules/ml/doc/random_trees.html
         """
+
+        if "maxdepth" in params:
+            max_d = params["maxdepth"]
+        else:
+            max_d = 4
+        if "criteria" in params:
+            criteria = params["criteria"]
+        else:
+            criteria=cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS
+        if "maxerror" in params:
+            max_error = params["maxerror"]
+        else:
+            max_error = 0.1
+        if "maxtrees" in params:
+            max_num_trees = params["maxtrees"]
+        else:
+            max_num_trees = 10
 
         parameters = dict(max_depth=max_d, min_sample_count=1, use_surrogates=False, 
             calc_var_importance=True, max_categories=10, nactive_vars=0, 

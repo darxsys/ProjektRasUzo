@@ -37,7 +37,7 @@ def help():
 
     buff += "Random trees related parameters:\n"
     buff += "--maxdepth=<number> -- max depth of a random tree.\n"
-    buff += "--criteria=<cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS> -- termination criteria for random trees learning.\n"
+    buff += "--criteria=0=cv.TERM_CRITERIA_MAX_ITER|1=cv.TERM_CRITERIA_EPS|2=both (default)> -- termination criteria for random trees learning.\n"
     buff += "--maxtrees=<number> -- maximum number of trees.\n"
     buff += "--maxerror=<numer> -- if --criteria includes EPS part, this regulates max error allowed before stopping.\n"
     buff += "##################################\n"
@@ -51,7 +51,8 @@ def get_arguments(argv):
 
     params = dict()
     try:
-        opts, args = getopt.getopt(argv,"",["path=","threshold=","method=","optparam=","approach="])
+        opts, args = getopt.getopt(argv,"",["path=","threshold=","method=","optparam=","approach=", \
+            "threshtype=","nmax=","nclass=","maxdepth=", "criteria=", "maxtrees=", "maxerror="])
     except getopt.GetoptError:
         help()
         sys.exit(1)
@@ -68,18 +69,51 @@ def get_arguments(argv):
             # print ('main.py --method=<hu>|<granlund>  --threshold=<floating_point_number>')
             help()
             sys.exit(1)
+
         elif opt == "--threshold":
             params["threshold"] = float(arg)
+
         elif opt == "--method":
             if arg == "hu":
                 params["method"] = 1
             elif arg == "granlund":
                 params["method"] = 0
             # method = arg
+
         elif opt == "--path":
             params["path"] = arg
+
         elif opt == "--optparam":
             params["param_flag"] = int(arg)
+
+        elif opt == "--approach":
+            params["approach"] = arg
+
+        elif opt == "--threshtype":
+            params["threshtype"] == arg
+
+        elif opt == "--nmax":
+            params["nmax"] = int(arg)
+
+        elif opt == "--nclass":
+            params["nclass"] = int(arg)
+
+        elif opt == "--maxdepth":
+            params["maxdepth"] = int(arg)
+
+        elif opt == "--criteria":
+            if int(arg) == 0:
+                params["criteria"] = cv.TERM_CRITERIA_MAX_ITER
+            elif int(arg) == 1:
+                params["criteria"] = cv.TERM_CRITERIA_EPS
+            elif int(arg) == 2:
+                params["criteria"] = cv.TERM_CRITERIA_MAX_ITER+cv.TERM_CRITERIA_EPS
+
+        elif opt == "--maxtrees":
+            params["maxtrees"] = int(arg)
+
+        elif opt == "--maxerror":
+            params["maxerror"] = float(arg)
 
     return params
 
@@ -99,8 +133,8 @@ def train(params):
 
     dataset, responses, decode = preproc.prepare_dataset_cv(path, threshold, method, parameters)
     bayes.train(dataset, responses)
-    knn.train(dataset, responses)
-    tree.train(dataset, responses)
+    knn.train(dataset, responses, params)
+    tree.train(dataset, responses, params)
 
     return bayes, knn, tree, decode
 
@@ -144,7 +178,7 @@ def predict(bayes, knn, tree, decode, params):
         features = granlund.get_features(silh, method=method_)
 
         bayes_res = decode[bayes.predict(features)[0]]
-        knn_res = decode[knn.predict(features, 7)[0]]
+        knn_res = decode[knn.predict(features, params)[0]]
         tree_res = decode[tree.predict(features)[0]]
 
         N += 1
