@@ -26,7 +26,7 @@ import sys
 
 def get_silhouette(person, background, approach = 'c', thresh_type = 'm',
 	threshold = 25, out_file = None):
-
+	# print (approach)
 	# subtracting the background to get the person
 
 	if approach == 'g':

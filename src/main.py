@@ -13,6 +13,7 @@ def help():
     """
 
     buff = "main.py [options]\n"
+    buff += "Default values, if any, are given in square brackets. []\n"
     buff += "Required parameters:\n"
     buff += "--path=<path_to_data> --path to learning data\n"
     buff += "--method =<hu>|<granlund> --method for feature extraction\n"
@@ -20,28 +21,27 @@ def help():
     buff += "##################################\n"
 
     buff += "Optional parameters (all other):\n"
-    buff += "--optparam=0|1 -- if this option is selected, thresholds are read for every picture and --threshold is ignored, if set.\n"
+    buff += "--optparam=0|1 -- if this option is selected, thresholds are read for every picture and --threshold is ignored, if set. [0]\n"
     buff += "##################################\n"
 
     buff += "Extraction related parameters:\n"
-    buff += "--approach=c|g -- regulates whether colored pictures are compared or gray-scaled ones when extracting silhouettes.\n"
-    buff += "--threshtype=m|a -- regulates whether median or mean are used ase threshold types for getting black and white pictures.\n"
+    buff += "--approach=c|g -- regulates whether colored pictures are compared or gray-scaled ones when extracting silhouettes. [c]\n"
+    buff += "--threshtype=m|a -- regulates whether median or mean are used ase threshold types for getting black and white pictures.[m]\n"
     buff += "##################################"
 
     buff += "KNN-related parameters:\n"
-    buff += "--nmax=<number> -- maximum number of neighbors for KNN classifier.\n"
-    buff += "--nclass=<number> -- number of neighbors used for classifying a picture. <= nmax.\n"
+    buff += "--nmax=<number> -- maximum number of neighbors for KNN classifier. [32]\n"
+    buff += "--nclass=<number> -- number of neighbors used for classifying a picture. <= nmax. [7]\n"
     buff += "Be careful: setting nmax and not setting nclass could lead to errors if nmax is < 7 which"
     buff += "is the default nclass.\n"
     buff += "##################################\n"
 
     buff += "Random trees related parameters:\n"
-    buff += "--maxdepth=<number> -- max depth of a random tree.\n"
-    buff += "--criteria=0=cv.TERM_CRITERIA_MAX_ITER|1=cv.TERM_CRITERIA_EPS|2=both (default)> -- termination criteria for random trees learning.\n"
-    buff += "--maxtrees=<number> -- maximum number of trees.\n"
-    buff += "--maxerror=<numer> -- if --criteria includes EPS part, this regulates max error allowed before stopping.\n"
+    buff += "--maxdepth=<number> -- max depth of a random tree. [4]\n"
+    buff += "--criteria=0=cv.TERM_CRITERIA_MAX_ITER|1=cv.TERM_CRITERIA_EPS|2=both -- termination criteria for random trees learning. [2]\n"
+    buff += "--maxtrees=<number> -- maximum number of trees. [10]\n"
+    buff += "--maxerror=<numer> -- if --criteria includes EPS part, this regulates max error allowed before stopping. [0.1]\n"
     buff += "##################################\n"
-
 
     print buff
 
@@ -76,6 +76,7 @@ def get_arguments(argv):
         elif opt == "--method":
             if arg == "hu":
                 params["method"] = 1
+                # print ("here")
             elif arg == "granlund":
                 params["method"] = 0
             # method = arg
@@ -88,6 +89,7 @@ def get_arguments(argv):
 
         elif opt == "--approach":
             params["approach"] = arg
+            # print (arg)
 
         elif opt == "--threshtype":
             params["threshtype"] == arg
@@ -125,13 +127,13 @@ def train(params):
     threshold = params["threshold"]
     method = params["method"]
     if "param_flag" in params:
-        parameters = params["param_flag"]
+        param_flag = params["param_flag"]
 
     bayes = classifier.NormalBayes()
     knn = classifier.KNN()
     tree = classifier.RandomTrees()
 
-    dataset, responses, decode = preproc.prepare_dataset_cv(path, threshold, method, parameters)
+    dataset, responses, decode = preproc.prepare_dataset_cv(path, threshold, method, param_flag, params)
     bayes.train(dataset, responses)
     knn.train(dataset, responses, params)
     tree.train(dataset, responses, params)
@@ -148,6 +150,10 @@ def predict(bayes, knn, tree, decode, params):
     if "param_flag" in params:
         parameters = params["param_flag"]
 
+    if "approach" in params:
+        approach_ = params["approach"]
+    else:
+        approach_ = "c"
     # print decode
     N = 0
     bayes_correct = 0
@@ -173,7 +179,7 @@ def predict(bayes, knn, tree, decode, params):
 
         image = granlund.load_image_from_file(pic)
         background = granlund.load_image_from_file(back)
-        silh = get_silhouette.get_silhouette(image, background, threshold = threshold_)
+        silh = get_silhouette.get_silhouette(image, background, threshold = threshold_, approach = approach_)
         # preproc.display_image(silh)
         features = granlund.get_features(silh, method=method_)
 

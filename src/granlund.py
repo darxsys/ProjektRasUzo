@@ -70,8 +70,8 @@ def _get_hu_coefficients(silhouette):
 
 def _get_granlund_coefficients(silhouette):
     # please make sure this interval contains 1
-    FOURIER_MIN_ID = -3
-    FOURIER_MAX_ID = 4
+    FOURIER_MIN_ID = -2
+    FOURIER_MAX_ID = 3
 
     # prepare values to be consistent with "meth"
     T = len(silhouette)
