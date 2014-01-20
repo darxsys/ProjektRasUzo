@@ -70,8 +70,8 @@ def _get_hu_coefficients(silhouette):
 
 def _get_granlund_coefficients(silhouette):
     # please make sure this interval contains 1
-    FOURIER_MIN_ID = -2
-    FOURIER_MAX_ID = 3
+    FOURIER_MIN_ID = -3
+    FOURIER_MAX_ID = 4
 
     # prepare values to be consistent with "meth"
     T = len(silhouette)
@@ -103,6 +103,7 @@ def _get_granlund_coefficients(silhouette):
 
     for p in range(1, FOURIER_MAX_ID):
         for q in range(2, 2 - FOURIER_MIN_ID):
+            # print (p, q)
     # for (p,q) in [(1,1), (2,2), (2,3), (2,4), (2,5), (3,3), (4,3), (4,4)]:
             d_pq  = fourier_coefficients[p + 1] ** q
             d_pq *= fourier_coefficients[1 - q] ** p
